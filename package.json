@@ -1,0 +1,45 @@
+{
+  "name": "smart-waste-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node scripts/seed.mjs"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "bcryptjs": "^2.4.3",
+    "browser-image-compression": "^2.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
+    "mongoose": "^8.6.0",
+    "next": "14.2.5",
+    "next-themes": "^0.3.0",
+    "openai": "^4.73.0",
+    "postcss": "^8.4.47",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^5.3.0",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-cluster": "^2.1.0",
+    "swr": "^2.2.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "22.7.4",
+    "@types/react": "18.3.5",
+    "@types/react-dom": "18.3.0",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.5",
+    "tailwindcss": "^3.4.13",
+    "typescript": "5.6.3"
+  }
+}

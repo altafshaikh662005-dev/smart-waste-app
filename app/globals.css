@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+}
+
+.card {
+  @apply rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 shadow-sm backdrop-blur;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 transition disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition;
+}
+
+.input {
+  @apply w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/50 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.badge-status-pending {
+  @apply badge bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200;
+}
+
+.badge-status-in-progress {
+  @apply badge bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200;
+}
+
+.badge-status-completed {
+  @apply badge bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-100;
+}
+
+.badge-priority-high {
+  @apply badge bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200;
+}
+
+.badge-priority-medium {
+  @apply badge bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200;
+}
+
+.badge-priority-low {
+  @apply badge bg-slate-100 text-slate-800 dark:bg-slate-900/40 dark:text-slate-200;
+}
+
+.skeleton {
+  @apply animate-pulse rounded-lg bg-slate-200/80 dark:bg-slate-800/80;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+}
+
+.map-wrapper {
+  width: 100%;
+  height: 480px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .map-wrapper {
+    height: 360px;
+  }
+}
