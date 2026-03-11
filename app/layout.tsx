@@ -8,7 +8,8 @@ import Nav from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: "Smart Waste-To-Resources System",
-  description: "AI-powered smart waste reporting and collection platform",
+  description:
+    "A smart platform for waste reporting and efficient waste collection management",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                         Smart Waste-To-Resources System{" "}
                       </span>
                       <span className="text-xs text-slate-500">
-                        AI-powered management
+                        Smart waste reporting and collection platform
                       </span>
                     </div>
                   </a>

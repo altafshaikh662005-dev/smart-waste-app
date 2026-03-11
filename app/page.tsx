@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiMapPin, FiPlusCircle, FiShield, FiTrendingUp, FiFileText } from "react-icons/fi";
+import {
+  FiMapPin,
+  FiPlusCircle,
+  FiShield,
+  FiTrendingUp,
+  FiFileText,
+} from "react-icons/fi";
 
 export default function HomePage() {
   const [role, setRole] = useState<"user" | "admin">("user");
@@ -11,19 +17,15 @@ export default function HomePage() {
     <div className="space-y-8">
       <section className="grid gap-6 md:grid-cols-[1.4fr,1fr] items-start">
         <div className="card p-6 md:p-8 space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-800 px-3 py-1 text-xs font-medium dark:bg-emerald-900/40 dark:text-emerald-100">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            AI-powered smart waste management
-          </div>
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
               Report garbage, optimize routes,{" "}
               <span className="text-primary">clean cities smarter.</span>
             </h1>
             <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 max-w-xl">
-              Citizens can instantly report overflowing bins with GPS and photos. Admins get an
-              AI-assisted command center for routing vehicles, tracking complaints, and rewarding
-              participation.
+              Citizens can instantly report overflowing bins with GPS and
+              photos. Admins get a command center for routing vehicles, tracking
+              complaints, and rewarding participation.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -51,16 +53,18 @@ export default function HomePage() {
                 GPS-enabled reporting
               </div>
               <p className="text-slate-500 dark:text-slate-400">
-                Auto-detect user location, cluster complaints on an interactive map.
+                Auto-detect user location, cluster complaints on an interactive
+                map.
               </p>
             </div>
             <div className="space-y-1">
               <div className="font-medium flex items-center gap-1.5">
                 <FiTrendingUp className="text-primary" />
-                AI-powered prioritization
+                Intelligent prioritization
               </div>
               <p className="text-slate-500 dark:text-slate-400">
-                Classify waste, suggest recycling tips, and optimize pickup routes by density.
+                Classify waste, suggest recycling tips, and optimize pickup
+                routes by density.
               </p>
             </div>
             <div className="space-y-1">
@@ -71,7 +75,8 @@ export default function HomePage() {
                 Rewards for clean citizens
               </div>
               <p className="text-slate-500 dark:text-slate-400">
-                Residents earn points for actionable reports, redeemable for local benefits.
+                Residents earn points for actionable reports, redeemable for
+                local benefits.
               </p>
             </div>
           </div>
@@ -108,7 +113,9 @@ export default function HomePage() {
             {role === "user" ? (
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <li>1. Sign up or log in as a citizen</li>
-                <li>2. Allow location access and upload a photo of the garbage</li>
+                <li>
+                  2. Allow location access and upload a photo of the garbage
+                </li>
                 <li>3. Select waste type and submit complaint</li>
                 <li>4. Track status and earn reward points</li>
               </ul>
@@ -146,4 +153,3 @@ export default function HomePage() {
     </div>
   );
 }
-

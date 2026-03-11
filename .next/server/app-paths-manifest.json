@@ -1,10 +1,9 @@
 {
   "/page": "app/page.js",
-  "/report/page": "app/report/page.js",
   "/map/page": "app/map/page.js",
   "/api/complaints/map/route": "app/api/complaints/map/route.js",
-  "/api/complaints/[id]/route": "app/api/complaints/[id]/route.js",
+  "/report/page": "app/report/page.js",
   "/api/complaints/route": "app/api/complaints/route.js",
-  "/user/page": "app/user/page.js",
-  "/user/reports/[id]/page": "app/user/reports/[id]/page.js"
+  "/admin/page": "app/admin/page.js",
+  "/user/page": "app/user/page.js"
 }
