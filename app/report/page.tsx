@@ -6,7 +6,15 @@ import toast from "react-hot-toast";
 import imageCompression from "browser-image-compression";
 import { useAuth } from "@/components/AuthContext";
 
-const WASTE_TYPES = ["Organic", "Plastic", "Metal", "Glass", "E-waste", "Mixed", "Other"];
+const WASTE_TYPES = [
+  "Organic",
+  "Plastic",
+  "Metal",
+  "Glass",
+  "E-waste",
+  "Mixed",
+  "Other",
+];
 
 export default function ReportPage() {
   const { user, loading } = useAuth();
@@ -18,6 +26,9 @@ export default function ReportPage() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [predictedWaste, setPredictedWaste] = useState<string | null>(null);
+  const [predictedTips, setPredictedTips] = useState<string | null>(null);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -36,7 +47,10 @@ export default function ReportPage() {
         setLat(pos.coords.latitude);
         setLng(pos.coords.longitude);
       },
-      () => setLocationError("Could not get your location. You can still submit with a default location.")
+      () =>
+        setLocationError(
+          "Could not get your location. You can still submit with a default location.",
+        ),
     );
   }, [user, loading, router]);
 
@@ -46,7 +60,29 @@ export default function ReportPage() {
     setImageFile(file);
     const url = URL.createObjectURL(file);
     setImagePreview(url);
+    // analyze image
+    analyzeImage(file);
     return () => URL.revokeObjectURL(url);
+  }
+
+  async function analyzeImage(file: File) {
+    try {
+      setAnalyzingImage(true);
+      setPredictedWaste(null);
+      setPredictedTips(null);
+      const fd = new FormData();
+      fd.set("image", file);
+      const res = await fetch("/api/ai/analyze", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) return;
+      const r = data.result || {};
+      if (r.wasteType) setPredictedWaste(r.wasteType);
+      if (r.tips) setPredictedTips(r.tips);
+    } catch (err) {
+      // ignore
+    } finally {
+      setAnalyzingImage(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -59,7 +95,9 @@ export default function ReportPage() {
     const latitude = lat ?? 0;
     const longitude = lng ?? 0;
     if (latitude === 0 && longitude === 0) {
-      toast.error("Location is required. Please allow location access or try again.");
+      toast.error(
+        "Location is required. Please allow location access or try again.",
+      );
       return;
     }
 
@@ -77,7 +115,7 @@ export default function ReportPage() {
           fileToUpload = await imageCompression(imageFile, {
             maxSizeMB: 0.5,
             maxWidthOrHeight: 1200,
-            useWebWorker: true
+            useWebWorker: true,
           });
         } catch {
           // use original if compression fails
@@ -88,7 +126,7 @@ export default function ReportPage() {
       const res = await fetch("/api/complaints", {
         method: "POST",
         credentials: "include",
-        body: formData
+        body: formData,
       });
       const data = await res.json();
       if (!res.ok) {
@@ -116,7 +154,9 @@ export default function ReportPage() {
       <h1 className="text-xl font-semibold mb-4">Report garbage issue</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Description *</label>
+          <label className="block text-sm font-medium mb-1">
+            Description *
+          </label>
           <textarea
             className="input min-h-[100px] resize-y"
             placeholder="Describe the issue (e.g. overflowing bin, illegal dumping...)"
@@ -140,7 +180,9 @@ export default function ReportPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Photo (optional)</label>
+          <label className="block text-sm font-medium mb-1">
+            Photo (optional)
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -155,6 +197,38 @@ export default function ReportPage() {
               className="mt-2 rounded-lg object-cover max-h-40 w-full"
             />
           )}
+          {analyzingImage && (
+            <p className="text-sm text-slate-600">Analyzing image...</p>
+          )}
+          {predictedWaste && (
+            <div className="mt-2 rounded-md border p-2 bg-slate-50">
+              <p className="text-sm">
+                AI suggests: <strong>{predictedWaste}</strong>
+              </p>
+              {predictedTips && (
+                <p className="text-xs text-slate-600">{predictedTips}</p>
+              )}
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  className="btn-outline"
+                  onClick={() => setWasteType(predictedWaste)}
+                >
+                  Use suggestion
+                </button>
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={() => {
+                    setPredictedWaste(null);
+                    setPredictedTips(null);
+                  }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div>
           <span className="block text-sm font-medium mb-1">GPS location</span>
@@ -168,7 +242,11 @@ export default function ReportPage() {
             </p>
           )}
         </div>
-        <button type="submit" className="btn-primary w-full" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn-primary w-full"
+          disabled={submitting}
+        >
           {submitting ? "Submitting…" : "Submit report"}
         </button>
       </form>

@@ -1,4 +1,4 @@
-// File: C:\Users\Altaf Shaikh\OneDrive\Desktop\CollageProject-VRS--main\smart-waste-app\app\api\auth\me\route.ts
+// File: C:\Users\Altaf Shaikh\OneDrive\Desktop\smart-waste-app\app\api\auth\me\route.ts
 import * as entry from '../../../../../../app/api/auth/me/route.js'
 import type { NextRequest } from 'next/server.js'
 

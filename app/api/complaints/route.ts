@@ -37,7 +37,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ complaints }, { status: 200 });
   } catch (error) {
     console.error("Get complaints error", error);
-    return NextResponse.json({ error: "Failed to fetch complaints." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch complaints." },
+      { status: 500 },
+    );
   }
 }
 
@@ -65,14 +68,18 @@ export async function POST(request: NextRequest) {
     if (!description || lat === null || lng === null) {
       return NextResponse.json(
         { error: "Description and valid location are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     let savedImagePath: string | undefined;
     const imageFile = formData.get("image");
 
-    if (imageFile && typeof imageFile === "object" && "arrayBuffer" in imageFile) {
+    if (
+      imageFile &&
+      typeof imageFile === "object" &&
+      "arrayBuffer" in imageFile
+    ) {
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
@@ -86,7 +93,11 @@ export async function POST(request: NextRequest) {
       savedImagePath = `/uploads/${fileName}`;
     }
 
-    const aiResult = await analyzeComplaintWithAI(description, wasteType);
+    const aiResult = await analyzeComplaintWithAI(
+      description,
+      wasteType,
+      savedImagePath ?? null,
+    );
 
     const complaint = await Complaint.create({
       userId: payload.id,
@@ -97,17 +108,19 @@ export async function POST(request: NextRequest) {
       longitude: lng,
       priority: aiResult.priority,
       status: "pending",
-      aiTips: aiResult.tips
+      aiTips: aiResult.tips,
     });
 
     await User.findByIdAndUpdate(payload.id, {
-      $push: { complaintIds: complaint._id }
+      $push: { complaintIds: complaint._id },
     });
 
     return NextResponse.json({ complaint }, { status: 201 });
   } catch (error) {
     console.error("Create complaint error", error);
-    return NextResponse.json({ error: "Failed to create complaint." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create complaint." },
+      { status: 500 },
+    );
   }
 }
-
