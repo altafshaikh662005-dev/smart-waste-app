@@ -5,7 +5,15 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import { useAuth } from "@/components/AuthContext";
-import { FiTrash2, FiUsers, FiFileText, FiShield, FiMapPin, FiUpload, FiCheck } from "react-icons/fi";
+import {
+  FiTrash2,
+  FiUsers,
+  FiFileText,
+  FiShield,
+  FiMapPin,
+  FiUpload,
+  FiCheck,
+} from "react-icons/fi";
 
 interface UserData {
   _id: string;
@@ -36,7 +44,8 @@ interface Complaint {
 const fetcher = async (url: string) => {
   const r = await fetch(url, { credentials: "include" });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error((data as { error?: string }).error || "Failed to load");
+  if (!r.ok)
+    throw new Error((data as { error?: string }).error || "Failed to load");
   return data;
 };
 
@@ -45,19 +54,33 @@ function formatDate(raw: string | { $date: string } | undefined): string {
   const str = typeof raw === "string" ? raw : (raw as { $date: string })?.$date;
   if (!str) return "—";
   const d = new Date(str);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
 }
 
 export default function AdminPage() {
-  const { user, loading, refresh } = useAuth();
+  const { user, loading, refresh, login, logout } = useAuth();
   const [tab, setTab] = useState<"users" | "reports">("users");
-  const { data: usersData, error: usersError, mutate: mutateUsers } = useSWR<{ users: UserData[] }>(
+  const {
+    data: usersData,
+    error: usersError,
+    mutate: mutateUsers,
+  } = useSWR<{ users: UserData[] }>(
     user?.role === "admin" ? "/api/users" : null,
-    fetcher
+    fetcher,
   );
-  const { data: complaintsData, error: complaintsError, mutate } = useSWR<{ complaints: Complaint[] }>(
+  const {
+    data: complaintsData,
+    error: complaintsError,
+    mutate,
+  } = useSWR<{ complaints: Complaint[] }>(
     user?.role === "admin" ? "/api/complaints?all=true" : null,
-    fetcher
+    fetcher,
   );
   const [updating, setUpdating] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
@@ -74,30 +97,22 @@ export default function AdminPage() {
     }
     setAdminLoggingIn(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email: adminEmail.trim().toLowerCase(),
-          password: adminPassword,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data.error || "Invalid admin credentials.");
+      const result = await login(
+        adminEmail.trim().toLowerCase(),
+        adminPassword,
+      );
+      if (result.error) {
+        toast.error(result.error || "Invalid admin credentials.");
         return;
       }
-      if (data.user?.role !== "admin") {
-        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      // ensure server-side cookie is read and context updated
+      await refresh();
+      if (!user || user.role !== "admin") {
+        await logout();
         toast.error("Admin credentials required.");
         return;
       }
       toast.success("Admin access granted.");
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("smart-waste-token", data.token);
-      }
-      refresh();
     } finally {
       setAdminLoggingIn(false);
     }
@@ -147,7 +162,12 @@ export default function AdminPage() {
   }
 
   async function confirmComplete(id: string) {
-    if (!confirm("Mark this task as complete and notify the user? The user will see their report is done.")) return;
+    if (
+      !confirm(
+        "Mark this task as complete and notify the user? The user will see their report is done.",
+      )
+    )
+      return;
     setUpdating(id);
     try {
       const res = await fetch(`/api/complaints/${id}/confirm`, {
@@ -204,12 +224,17 @@ export default function AdminPage() {
           </span>
           <div>
             <h1 className="text-xl font-semibold">Admin login</h1>
-            <p className="text-sm text-slate-500">Enter admin credentials to access the dashboard</p>
+            <p className="text-sm text-slate-500">
+              Enter admin credentials to access the dashboard
+            </p>
           </div>
         </div>
         <form onSubmit={handleAdminLogin} className="space-y-4">
           <div>
-            <label htmlFor="admin-email" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="admin-email"
+              className="block text-sm font-medium mb-1"
+            >
               Admin email
             </label>
             <input
@@ -223,7 +248,10 @@ export default function AdminPage() {
             />
           </div>
           <div>
-            <label htmlFor="admin-password" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="admin-password"
+              className="block text-sm font-medium mb-1"
+            >
               Admin password
             </label>
             <input
@@ -255,14 +283,13 @@ export default function AdminPage() {
   const users = usersData?.users ?? [];
   const complaints = complaintsData?.complaints ?? [];
   const hasError = usersError || complaintsError;
-  const isLoading = (!usersData && !usersError) || (!complaintsData && !complaintsError);
+  const isLoading =
+    (!usersData && !usersError) || (!complaintsData && !complaintsError);
 
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Admin dashboard</h1>
-      <p className="text-sm text-slate-500">
-        View users and manage reports.
-      </p>
+      <p className="text-sm text-slate-500">View users and manage reports.</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="card p-4 flex items-center gap-4">
@@ -270,7 +297,9 @@ export default function AdminPage() {
             <FiUsers className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-2xl font-bold">{isLoading ? "—" : users.length}</p>
+            <p className="text-2xl font-bold">
+              {isLoading ? "—" : users.length}
+            </p>
             <p className="text-sm text-slate-500">Total users</p>
           </div>
         </div>
@@ -279,7 +308,9 @@ export default function AdminPage() {
             <FiFileText className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-2xl font-bold">{isLoading ? "—" : complaints.length}</p>
+            <p className="text-2xl font-bold">
+              {isLoading ? "—" : complaints.length}
+            </p>
             <p className="text-sm text-slate-500">Total reports</p>
           </div>
         </div>
@@ -315,11 +346,17 @@ export default function AdminPage() {
       {hasError && (
         <div className="card p-4 flex items-center justify-between gap-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
           <p className="text-amber-800 dark:text-amber-200">
-            Failed to load data. {(usersError as Error)?.message || (complaintsError as Error)?.message || "You may not have admin access."}
+            Failed to load data.{" "}
+            {(usersError as Error)?.message ||
+              (complaintsError as Error)?.message ||
+              "You may not have admin access."}
           </p>
           <button
             type="button"
-            onClick={() => { mutateUsers(); mutate(); }}
+            onClick={() => {
+              mutateUsers();
+              mutate();
+            }}
             className="btn-ghost text-sm"
           >
             Retry
@@ -342,11 +379,18 @@ export default function AdminPage() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u._id} className="border-b border-slate-100 dark:border-slate-800">
+                  <tr
+                    key={u._id}
+                    className="border-b border-slate-100 dark:border-slate-800"
+                  >
                     <td className="py-3 px-4 font-medium">{u.name}</td>
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{u.email}</td>
+                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                      {u.email}
+                    </td>
                     <td className="py-3 px-4">
-                      <span className={`badge ${u.role === "admin" ? "badge-priority-high" : "badge-priority-low"}`}>
+                      <span
+                        className={`badge ${u.role === "admin" ? "badge-priority-high" : "badge-priority-low"}`}
+                      >
                         {u.role}
                       </span>
                     </td>
@@ -358,7 +402,9 @@ export default function AdminPage() {
             </table>
           </div>
           {users.length === 0 && !usersError && (
-            <p className="text-sm text-slate-500 text-center py-8">No users yet.</p>
+            <p className="text-sm text-slate-500 text-center py-8">
+              No users yet.
+            </p>
           )}
         </div>
       )}
@@ -385,7 +431,10 @@ export default function AdminPage() {
               </thead>
               <tbody>
                 {complaints.map((c) => (
-                  <tr key={c._id} className="border-b border-slate-100 dark:border-slate-800">
+                  <tr
+                    key={c._id}
+                    className="border-b border-slate-100 dark:border-slate-800"
+                  >
                     <td className="py-3 px-4">
                       {c.image ? (
                         <a
@@ -405,17 +454,23 @@ export default function AdminPage() {
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      {c.userId && typeof c.userId === "object" && "name" in c.userId
-                        ? (c.userId as { name?: string }).name ?? "—"
+                      {c.userId &&
+                      typeof c.userId === "object" &&
+                      "name" in c.userId
+                        ? ((c.userId as { name?: string }).name ?? "—")
                         : "—"}
                     </td>
                     <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                      {c.userId && typeof c.userId === "object" && "email" in c.userId
-                        ? (c.userId as { email?: string }).email ?? "—"
+                      {c.userId &&
+                      typeof c.userId === "object" &&
+                      "email" in c.userId
+                        ? ((c.userId as { email?: string }).email ?? "—")
                         : "—"}
                     </td>
                     <td className="py-3 px-4">{c.wasteType}</td>
-                    <td className="py-3 px-4 max-w-[200px] truncate">{c.description}</td>
+                    <td className="py-3 px-4 max-w-[200px] truncate">
+                      {c.description}
+                    </td>
                     <td className="py-3 px-4">
                       {c.latitude != null && c.longitude != null ? (
                         <a
@@ -445,9 +500,13 @@ export default function AdminPage() {
                       </select>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`badge badge-priority-${c.priority}`}>{c.priority}</span>
+                      <span className={`badge badge-priority-${c.priority}`}>
+                        {c.priority}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-500">{formatDate(c.createdAt)}</td>
+                    <td className="py-3 px-4 text-slate-500">
+                      {formatDate(c.createdAt)}
+                    </td>
                     <td className="py-3 px-4">
                       <div className="flex flex-col gap-1">
                         {c.adminImage ? (
@@ -457,7 +516,11 @@ export default function AdminPage() {
                             rel="noopener noreferrer"
                             className="block w-12 h-12 rounded overflow-hidden border border-slate-200 dark:border-slate-700"
                           >
-                            <img src={c.adminImage} alt="Admin proof" className="w-full h-full object-cover" />
+                            <img
+                              src={c.adminImage}
+                              alt="Admin proof"
+                              className="w-full h-full object-cover"
+                            />
                           </a>
                         ) : null}
                         <label className="cursor-pointer">
@@ -474,7 +537,11 @@ export default function AdminPage() {
                           />
                           <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
                             <FiUpload className="w-3 h-3" />
-                            {uploadingImage === c._id ? "Uploading…" : c.adminImage ? "Replace" : "Upload"}
+                            {uploadingImage === c._id
+                              ? "Uploading…"
+                              : c.adminImage
+                                ? "Replace"
+                                : "Upload"}
                           </span>
                         </label>
                       </div>
@@ -483,9 +550,15 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={() => confirmComplete(c._id)}
-                        disabled={updating === c._id || c.status === "completed"}
+                        disabled={
+                          updating === c._id || c.status === "completed"
+                        }
                         className="btn-primary text-xs py-1.5 px-2 inline-flex items-center gap-1 disabled:opacity-50"
-                        title={c.status === "completed" ? "Already completed" : "Mark complete & notify user"}
+                        title={
+                          c.status === "completed"
+                            ? "Already completed"
+                            : "Mark complete & notify user"
+                        }
                       >
                         <FiCheck className="w-3.5 h-3.5" />
                         {c.status === "completed" ? "Done" : "Confirm"}
@@ -508,7 +581,9 @@ export default function AdminPage() {
             </table>
           </div>
           {complaints.length === 0 && !complaintsError && (
-            <p className="text-sm text-slate-500 text-center py-8">No reports yet.</p>
+            <p className="text-sm text-slate-500 text-center py-8">
+              No reports yet.
+            </p>
           )}
         </div>
       )}

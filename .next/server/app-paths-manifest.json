@@ -1,9 +1,7 @@
 {
+  "/api/auth/me/route": "app/api/auth/me/route.js",
   "/page": "app/page.js",
-  "/map/page": "app/map/page.js",
-  "/api/complaints/map/route": "app/api/complaints/map/route.js",
-  "/report/page": "app/report/page.js",
+  "/api/users/route": "app/api/users/route.js",
   "/api/complaints/route": "app/api/complaints/route.js",
-  "/admin/page": "app/admin/page.js",
-  "/user/page": "app/user/page.js"
+  "/admin/page": "app/admin/page.js"
 }
